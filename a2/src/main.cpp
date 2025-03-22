@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 template <class T>
@@ -134,6 +135,7 @@ class Compressor {
 class Decompressor {
 
 
+	public:
 	// desired usage:
 	/*
 	Decompressor d;
@@ -157,5 +159,30 @@ ostream &operator<<(ostream &os, const Decompressor &d) {
 
 
 int main() {
-	cout << "Hello World!" << endl;
+	cout << "To compress a file, press 1. To decompress a file, press 2: ";
+	int choice;
+	cin >> choice;
+	cout <<  "Enter the input string: ";
+	string s;
+	getline(cin, s);
+
+	switch (choice)
+	{
+	case 1: { // compressing
+			Compressor c;
+			// string zip = c.compress(s);
+			// cout << zip << endl;
+		}
+		break;
+	case 2: { // decompressing
+		Decompressor d;
+		stringstream ss(s);
+		while (d << ss);
+		cout << d;
+	}
+		break;
+	
+	default:
+		break;
+	}
 }
