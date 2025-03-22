@@ -12,6 +12,9 @@ build/app: $(SRC)
 build/debug: $(SRC)
 	$(CXX) $(CXXFLAGS) -o $@ -g3 $(SRC)
 
+build/submission: submission/code.cpp
+	$(CXX) $(CXXFLAGS) --std=c++14 -o $@ $(SRC)
+
 .SILENT: run
 run: build/app
 ifeq ($(input), )
