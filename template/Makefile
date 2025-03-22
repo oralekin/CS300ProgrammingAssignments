@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -fdiagnostics-color=always
+CXXFLAGS = -Wall -fdiagnostics-color=always --std=c++14
 SRC=$(wildcard src/**.cpp)
 
 .PHONY: run all
