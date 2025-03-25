@@ -85,7 +85,7 @@ class HashTable {
 		table = new Slot[capacity];
 	}
 
-	// can't have no slots available, we will rehash to keep 
+	// TODO: return None if table full, Some(pair<...>) otherwise
 	// returns spot this should be in, and spot to insert into
 	pair<int, int> findSpot(const Item &predicate) const {
 		// TODO
@@ -100,7 +100,6 @@ class HashTable {
 	bool insert(Item i) {
 		// TODO
 
-		if (size() > capacity * LOAD_LIMIT) rehash(capacity * 2);
 		return false;
 	};
 
@@ -108,11 +107,6 @@ class HashTable {
 		// TODO
 		return {};
 	};
-
-	void rehash(int newSize) {
-		// TODO
-		return;
-	}
 
 	int size() const {
 		return _size;
