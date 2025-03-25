@@ -177,26 +177,27 @@ int main() {
 	cout << "To compress a file, press 1. To decompress a file, press 2: ";
 	int choice;
 	cin >> choice;
-	cout <<  "Enter the input string: ";
+	cout << "Enter the input string: ";
 	string s;
 	getline(cin, s);
 
-	switch (choice)
-	{
-	case 1: { // compressing
-			Compressor c;
-			// string zip = c.compress(s);
-			// cout << zip << endl;
-		}
-		break;
-	case 2: { // decompressing
+	switch (choice) {
+	case 1:
+	{ // compressing
+		Compressor c;
+		// string zip = c.compress(s);
+		// cout << zip << endl;
+	}
+	break;
+	case 2:
+	{ // decompressing
 		Decompressor d;
 		stringstream ss(s);
 		while (d << ss);
 		cout << d;
 	}
-		break;
-	
+	break;
+
 	default:
 		break;
 	}
