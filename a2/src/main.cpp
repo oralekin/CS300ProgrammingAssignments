@@ -64,7 +64,7 @@ class HashTable {
 	Slot *table = nullptr;
 	int _size = 0;
 
-	typedef int(*HashFunctionPointer)(const Item &);
+	typedef unsigned long long(*HashFunctionPointer)(const Item &);
 	HashFunctionPointer hash;
 	// can't construct without associated hash function
 	HashTable() = delete;
@@ -125,9 +125,12 @@ struct StringCode {
 		return !operator==(other);
 	}
 
-	static int hash(const StringCode &sc) {
-		// TODO
-		return 0;
+	// simple function from the book
+	static unsigned long long hash(const StringCode &sc) {
+		unsigned long long result = 0;
+		for (char ch : sc.str)
+			result = (37 * result) + ch;
+		return result;
 	}
 };
 
