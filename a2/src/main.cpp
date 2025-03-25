@@ -218,10 +218,10 @@ class Decompressor {
 	while (d << cin);
 	cout << output;
 	*/
-	istream &operator<<(istream &is) {
+	bool operator<<(istream &is) {
 		// TODO
 
-		return is;
+		return false;
 	};
 	friend ostream &operator<<(ostream &os, const Decompressor &d);
 };
