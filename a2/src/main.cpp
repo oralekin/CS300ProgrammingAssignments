@@ -74,13 +74,14 @@ class HashTable {
 	Slot *table = nullptr;
 	int _size = 0;
 
-	typedef unsigned long long(*HashFunctionPointer)(const Item &);
-	HashFunctionPointer hash;
+	// typedef unsigned long long(*HashFunction)(const Item &);
+	typedef function<unsigned long long(const Item &)> HashFunction;
+	HashFunction hash;
 	// can't construct without associated hash function
 	HashTable() = delete;
 
 	public:
-	HashTable(int capacity, HashFunctionPointer hash) : capacity(capacity), hash(hash) {
+	HashTable(int capacity, HashFunction hash) : capacity(capacity), hash(hash) {
 		table = new Slot[capacity];
 	}
 
