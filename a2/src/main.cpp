@@ -175,8 +175,12 @@ ostream &operator<<(ostream &os, const Decompressor &d) {
 
 int main() {
 	cout << "To compress a file, press 1. To decompress a file, press 2: ";
-	int choice;
-	cin >> choice;
+
+	// because getline and >> dont work together 
+	string choice_str;
+	getline(cin, choice_str);
+	int choice = atoi(choice_str.c_str());
+
 	cout << "Enter the input string: ";
 	string s;
 	getline(cin, s);
@@ -199,6 +203,10 @@ int main() {
 	break;
 
 	default:
+		cout << "Bad input." << endl;
+		return 1;
 		break;
 	}
+
+	return 0;
 }
