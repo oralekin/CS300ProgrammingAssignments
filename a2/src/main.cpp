@@ -141,6 +141,8 @@ struct StringCode {
 
 class CodeTable : public HashTable<StringCode> {
 	int codeCount = 0;
+	// length of the longest hashed string in the table
+	int _maxLength = 1;
 
 	public:
 	CodeTable() : HashTable(4096, &StringCode::hash) {
@@ -157,13 +159,52 @@ class CodeTable : public HashTable<StringCode> {
 
 	bool insert(const string &str) {
 		if (HashTable::insert({ str, codeCount })) {
-			codeCount++; return true;
+			codeCount++;
+			_maxLength = max((int)str.length(), _maxLength);
+			return true;
 		} else return false;
+	}
+
+	int maxLength() const {
+		return _maxLength;
 	}
 };
 
 class Compressor {
-	// TODO
+	CodeTable map;
+	// last stringcode that was inserted
+	// use some placeholder value, won't be read before it is written to.
+	StringCode last = StringCode("\0", -1);
+
+	string compress(string s) {
+
+		// index of the start of the uncompressed section
+		unsigned int start = 0;
+		stringstream result;
+
+		while (start < s.length()) {
+			// find the longest prefix in the uncompressed
+			auto longest = longestCodeInTable(s.substr(start));
+			result << printf("%d ", longest.code);
+			// we have compressed some part of the input.
+			start += longest.str.length();
+			// if theres a next character, add to map
+			if (start < s.length())
+				map.insert(longest.str + s[start]);
+		}
+
+		return result.str();
+	}
+
+	StringCode longestCodeInTable(string s) {
+		for (int n = map.maxLength(); n > 0; n--) {
+			if (n > s.length()) continue; // no substring of this size
+			auto item = map.find(s.substr(0, n));
+			if (item) return *item;
+		}
+		throw "shouldve found one-character code already!";
+	}
+
 };
 
 
