@@ -41,6 +41,16 @@ class Option {
 	constexpr operator bool() const {
 		return has;
 	}
+
+	// "monadic operations"
+	template <class U>
+	Option<U> map(function<U(T)> f) {
+		if (!has) {
+			return {};
+		} else {
+			return f(vv->value);
+		}
+	}
 };
 
 template<class Item>
@@ -81,7 +91,7 @@ class HashTable {
 		return { 0, 0 };
 	};
 
-	Option<Item &> find(const Item &predicate) {
+	Option<Item &> find(const Item &predicate) const {
 		// TODO
 		return {};
 	};
@@ -135,14 +145,26 @@ struct StringCode {
 };
 
 class CodeTable : public HashTable<StringCode> {
+	int codeCount = 0;
+
+	public:
 	CodeTable() : HashTable(4096, &StringCode::hash) {
-		for (char c = 1; c < 256; c++)
+		for (char c = 0; c < 256; c++)
 			insert({ c });
 	};
 
-	const Option<int &> find(const string &str) {
-		return {};
+	// dropped reference because it doesn't work with Option::map
+	Option<int> find(const string &str) const {
+		return
+			HashTable<StringCode>::find({ str, -1 })
+			.map<int>([](const StringCode &sc) {return sc.code;});
 	};
+
+	bool insert(const string &str) {
+		if (HashTable::insert({ str, codeCount })) {
+			codeCount++; return true;
+		} else return false;
+	}
 };
 
 class Compressor {
