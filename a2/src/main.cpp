@@ -152,7 +152,6 @@ class HashTable {
 	};
 
 	Option<const Item &> find(const Item &predicate) const {
-		// const reference to (table pointer) to use inside the lambda ahead
 		return
 			findSpot(predicate)
 			// (...).template map<...>(...) from https://stackoverflow.com/a/3786481
