@@ -188,9 +188,21 @@ class HashTable {
 		return false;
 	};
 
+	// same as find but removes the item and returns it, if found
 	Option<Item> remove(const Item &predicate) {
-		// TODO
-		return {};
+		return
+			findSpot(predicate)
+			.template map<int>([](pair<int, int> p) {return p.first;})
+			// this is unfunctional because it modifies outside state... oops. 
+			.template flatMap<const Item &>([&](int idx) {
+				Slot &s = table[idx];
+				Option<Item> r;
+				if (s.status == Slot::INUSE){
+					r = Option((*(s.value)));
+					s.status = Slot::DELETED;
+				}
+				return r;
+			});
 	};
 
 	int size() const {
