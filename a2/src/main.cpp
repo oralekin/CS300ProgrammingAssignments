@@ -99,6 +99,7 @@ class HashTable {
 		SlotStatus status;
 		Item *value;
 		Slot() : status(VIRGIN), value(nullptr) {};
+		Slot(Item item) : status(INUSE), value(new Item(item)) {};
 	};
 
 	constexpr static float LOAD_LIMIT = .5;
@@ -165,9 +166,25 @@ class HashTable {
 			});
 	};
 
-	bool insert(Item i) {
-		// TODO
+	// returns true if item was inserted
+	// returns false if the item was inserted due to:
+	// 	no space in the table
+	// 	item already exists
+	bool insert(Item item) {
+		auto spot = findSpot(item);
+		
+		// no space left.
+		if (!spot) return false;
+		
+		int loc, loc_insert;
+		tie(loc, loc_insert) = *spot;
+		
+		// this value already exists in the table
+		if (table[loc].status == Slot::INUSE) return false;
 
+		// this value isnt in the table, so add it to the first empty spot we found.
+		table[loc_insert] = Slot(item);
+		
 		return false;
 	};
 
