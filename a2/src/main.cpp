@@ -198,7 +198,7 @@ class Compressor {
 	}
 
 	StringCode longestCodeInTable(string s) {
-		for (int n = map.maxLength(); n > 0; n--) {
+		for (unsigned int n = map.maxLength(); n > 0; n--) {
 			if (n > s.length()) continue; // no substring of this size
 			auto item = map.find(s.substr(0, n));
 			if (item) return *item;
