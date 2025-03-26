@@ -124,7 +124,8 @@ class HashTable {
 		int init = hash(predicate) % capacity;
 		int i = init;
 
-		int to_insert = -1;
+		bool found_insert_spot = false;
+		int insert_spot = i;
 
 		/*
 		stop when:
@@ -140,16 +141,21 @@ class HashTable {
 			&& *(table[i].value) != predicate
 			) {
 			// if this spot is insertable and we havent found one yet:
-			if (table[i].status != Slot::INUSE && to_insert == -1)
-				to_insert = i;
+			if (table[i].status != Slot::INUSE && !found_insert_spot) {
+				insert_spot = i;
+				found_insert_spot = true;
+			}
 
 			// progress i until we find it again.
 			if (++i >= capacity) i -= capacity;
-			// after progressing, if we are back at the start, we are done
+			// after progressing, if we are back at the start, there is no space.
 			if (i == init) return {};
 		}
 
-		return make_pair(i, to_insert);
+		// if we don't find a good insert spot, default to i
+		if (!found_insert_spot) insert_spot = i;
+
+		return make_pair(i, insert_spot);
 	};
 
 	Option<const Item &> find(const Item &predicate) const {
@@ -172,20 +178,20 @@ class HashTable {
 	// 	item already exists
 	bool insert(Item item) {
 		auto spot = findSpot(item);
-		
+
 		// no space left.
 		if (!spot) return false;
-		
+
 		int loc, loc_insert;
 		tie(loc, loc_insert) = *spot;
-		
+
 		// this value already exists in the table
 		if (table[loc].status == Slot::INUSE) return false;
 
 		// this value isnt in the table, so add it to the first empty spot we found.
 		table[loc_insert] = Slot(item);
-		
-		return false;
+
+		return true;
 	};
 
 	// same as find but removes the item and returns it, if found
