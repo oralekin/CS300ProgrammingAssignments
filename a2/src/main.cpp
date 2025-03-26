@@ -194,10 +194,10 @@ class HashTable {
 			findSpot(predicate)
 			.template map<int>([](pair<int, int> p) {return p.first;})
 			// this is unfunctional because it modifies outside state... oops. 
-			.template flatMap<const Item &>([&](int idx) {
+			.template flatMap<Item>([&](int idx) {
 				Slot &s = table[idx];
 				Option<Item> r;
-				if (s.status == Slot::INUSE){
+				if (s.status == Slot::INUSE) {
 					r = Option((*(s.value)));
 					s.status = Slot::DELETED;
 				}
