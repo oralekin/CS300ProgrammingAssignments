@@ -10,34 +10,55 @@ class Option {
 
 	bool has;
 
-	struct V {
+	struct Container {
 		T value;
+		Container(T v) : value(v) {};
 	};
-	V *vv;
+	Container *inner;
 
 	public:
-	// default/none constructor
-	Option() : has(false), vv(nullptr) {};
+	// none constructor
+	Option() : has(false), inner(nullptr) {};
 	// "some" constructor
-	Option(T _value) : has(true), vv(new V) {
-		vv->value = _value;
-	};
+	Option(T _value) : has(true), inner(new Container(_value)) {};
 	// copy cons
-	Option(const Option<T> &other) : has(other.has), vv(other.vv) {};
+	Option(const Option<T> &other) : has(other.has), inner(other.inner) {};
 	// move cons
 	Option(Option<T> &&other) {
-		swap(vv, other.vv);
+		swap(inner, other.inner);
 		swap(has, other.has);
 	};
 
+	const Option<T> &operator=(const Option<T> &other) {
+		if (&other == this) return *this;
+
+		// clear myself
+		delete inner;
+		has = other.has;
+		inner = nullptr;
+
+		// if other has a value:
+		if (has) {
+			// create container with copy of value from other.
+			inner = new Container(other.inner->value);
+		}
+
+		return *this;
+	}
+
+	~Option() {
+		delete inner;
+		return;
+	}
+
 	constexpr T &operator*() const {
-		return vv->value;
+		return inner->value;
 	};
 	constexpr T operator->() const {
-		return vv->value;
+		return inner->value;
 	};
 	constexpr bool operator==(const Option<T> &other) const {
-		return has && other.has && *vv->value == *other.vv->value;
+		return has && other.has && *inner->value == *other.inner->value;
 	}
 	constexpr operator bool() const {
 		return has;
@@ -49,7 +70,15 @@ class Option {
 		if (!has) {
 			return {};
 		} else {
-			return f(vv->value);
+			return f(inner->value);
+		}
+	}
+	template <class U>
+	Option<U> flatMap(function<Option<U>(T)> f) {
+		if (!has) {
+			return {};
+		} else {
+			return f(inner->value);
 		}
 	}
 };
@@ -60,6 +89,8 @@ class HashTable {
 	private:
 	struct Slot {
 		enum SlotStatus {
+			// i cant think of a better name to use for
+			// slots which have not yet been initialized...
 			VIRGIN,
 			INUSE,
 			DELETED,
@@ -86,16 +117,53 @@ class HashTable {
 		table = new Slot[capacity];
 	}
 
-	// TODO: return None if table full, Some(pair<...>) otherwise
-	// returns spot this should be in, and spot to insert into
-	pair<int, int> findSpot(const Item &predicate) const {
-		// TODO
-		return { 0, 0 };
+	// return None if table full, Some<pair<...>> otherwise
+	// Some<pair<...,...>: spot this should be in, spot to insert into
+	Option<pair<int, int>> findSpot(const Item &predicate) const {
+		int init = hash(predicate) % capacity;
+		int i = init;
+
+		int to_insert = -1;
+
+		/*
+		stop when:
+			- found an empty cell.
+				- found a deleted cell with this predicate in it
+				- found an active cell with this predicate in it
+			- => found any cell with this predicate in it or is virgin
+			=== continue if: !(virgin || predicate)
+			=== continue if: (!virgin && !predicate)
+		*/
+		while (
+			table[i].status != Slot::VIRGIN
+			&& *(table[i].value) != predicate
+			) {
+			// if this spot is insertable and we havent found one yet:
+			if (table[i].status != Slot::INUSE && to_insert == -1)
+				to_insert = i;
+
+			// progress i until we find it again.
+			if (++i >= capacity) i -= capacity;
+			// after progressing, if we are back at the start, we are done
+			if (i == init) return {};
+		}
+
+		return make_pair(i, to_insert);
 	};
 
-	Option<Item &> find(const Item &predicate) const {
-		// TODO
-		return {};
+	Option<const Item &> find(const Item &predicate) const {
+		// const reference to (table pointer) to use inside the lambda ahead
+		return
+			findSpot(predicate)
+			// (...).template map<...>(...) from https://stackoverflow.com/a/3786481
+			.template map<int>([](pair<int, int> p) {return p.first;})
+			.template flatMap<const Item &>([&](int idx) {
+				const Slot &s = table[idx];
+				Option<const Item &> r {};
+				if (s.status == Slot::INUSE)
+					r = Option<const Item &>(*(s.value));
+				return r;
+			});
 	};
 
 	bool insert(Item i) {
@@ -208,7 +276,6 @@ class Compressor {
 
 };
 
-
 class Decompressor {
 
 
@@ -232,7 +299,6 @@ ostream &operator<<(ostream &os, const Decompressor &d) {
 
 	return os;
 }
-
 
 
 int main() {
