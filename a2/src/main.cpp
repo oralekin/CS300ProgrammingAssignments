@@ -311,8 +311,16 @@ class Compressor {
 
 class Decompressor {
 
+	string dictionary[4096];
+	stringstream output;
 
 	public:
+
+	Decompressor() {
+		for (unsigned int c = 0; c < 256; c++)
+			dictionary[c] = { (char) c };
+	}
+
 	// desired usage:
 	/*
 	Decompressor d;
@@ -328,7 +336,7 @@ class Decompressor {
 };
 
 ostream &operator<<(ostream &os, const Decompressor &d) {
-	// TODO
+	os << d.output.str();
 
 	return os;
 }
