@@ -223,7 +223,7 @@ struct StringCode {
 	int code;
 
 	StringCode(string str, int code) : str(str), code(code) {};
-	StringCode(char c) : StringCode({ c }, c) {};
+	StringCode(char c) : StringCode({ (char) c }, c) {};
 
 	bool operator==(const StringCode &other) const {
 		return str == other.str;
@@ -249,15 +249,13 @@ class CodeTable : public HashTable<StringCode> {
 
 	public:
 	CodeTable() : HashTable(4096, &StringCode::hash) {
-		for (char c = 0; c < 256; c++)
-			insert({ c });
+		for (int c = 0; c < 256; c++)
+			insert({ (char) c });
 	};
 
-	// dropped reference because it doesn't work with Option::map
-	Option<int> find(const string &str) const {
+	Option<const StringCode&> find(const string &str) const {
 		return
-			HashTable<StringCode>::find({ str, -1 })
-			.map<int>([](const StringCode &sc) {return sc.code;});
+			HashTable<StringCode>::find({ str, -1 });
 	};
 
 	bool insert(const string &str) {
@@ -279,6 +277,7 @@ class Compressor {
 	// use some placeholder value, won't be read before it is written to.
 	StringCode last = StringCode("\0", -1);
 
+	public:
 	string compress(string s) {
 
 		// index of the start of the uncompressed section
@@ -288,7 +287,7 @@ class Compressor {
 		while (start < s.length()) {
 			// find the longest prefix in the uncompressed
 			auto longest = longestCodeInTable(s.substr(start));
-			result << printf("%d ", longest.code);
+			result << longest.code << ' ';
 			// we have compressed some part of the input.
 			start += longest.str.length();
 			// if theres a next character, add to map
@@ -346,13 +345,12 @@ int main() {
 	cout << "Enter the input string: ";
 	string s;
 	getline(cin, s);
-
 	switch (choice) {
 	case 1:
 	{ // compressing
 		Compressor c;
-		// string zip = c.compress(s);
-		// cout << zip << endl;
+		string zip = c.compress(s);
+		cout << "Compressed output: " << zip;
 	}
 	break;
 	case 2:
