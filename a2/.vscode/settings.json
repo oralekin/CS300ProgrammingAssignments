@@ -83,5 +83,7 @@
     "typeinfo": "cpp",
     "valarray": "cpp",
     "*.ipp": "cpp"
-  }
+  },
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.clang_format_fallbackStyle": "Chromium",
 }
