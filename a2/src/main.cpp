@@ -3,11 +3,10 @@
 #include <sstream>
 using namespace std;
 
-template <class T>
+template<class T>
 // coderunner runs on old c++, so quickly implement optional type
 class Option {
 	private:
-
 	bool has;
 
 	struct Container {
@@ -65,7 +64,7 @@ class Option {
 	}
 
 	// "monadic operations"
-	template <class U>
+	template<class U>
 	Option<U> map(function<U(T)> f) {
 		if (!has) {
 			return {};
@@ -73,7 +72,7 @@ class Option {
 			return f(inner->value);
 		}
 	}
-	template <class U>
+	template<class U>
 	Option<U> flatMap(function<Option<U>(T)> f) {
 		if (!has) {
 			return {};
@@ -136,10 +135,7 @@ class HashTable {
 			=== continue if: !(virgin || predicate)
 			=== continue if: (!virgin && !predicate)
 		*/
-		while (
-			table[i].status != Slot::VIRGIN
-			&& *(table[i].value) != predicate
-			) {
+		while (table[i].status != Slot::VIRGIN && *(table[i].value) != predicate) {
 			// if this spot is insertable and we havent found one yet:
 			if (table[i].status != Slot::INUSE && !found_insert_spot) {
 				insert_spot = i;
@@ -159,15 +155,13 @@ class HashTable {
 	};
 
 	Option<const Item &> find(const Item &predicate) const {
-		return
-			findSpot(predicate)
+		return findSpot(predicate)
 			// (...).template map<...>(...) from https://stackoverflow.com/a/3786481
-			.template map<int>([](pair<int, int> p) {return p.first;})
+			.template map<int>([](pair<int, int> p) { return p.first; })
 			.template flatMap<const Item &>([&](int idx) {
 				const Slot &s = table[idx];
-				Option<const Item &> r {};
-				if (s.status == Slot::INUSE)
-					r = Option<const Item &>(*(s.value));
+				Option<const Item &> r{};
+				if (s.status == Slot::INUSE) r = Option<const Item &>(*(s.value));
 				return r;
 			});
 	};
@@ -196,10 +190,9 @@ class HashTable {
 
 	// same as find but removes the item and returns it, if found
 	Option<Item> remove(const Item &predicate) {
-		return
-			findSpot(predicate)
-			.template map<int>([](pair<int, int> p) {return p.first;})
-			// this is unfunctional because it modifies outside state... oops. 
+		return findSpot(predicate)
+			.template map<int>([](pair<int, int> p) { return p.first; })
+			// this is unfunctional because it modifies outside state... oops.
 			.template flatMap<Item>([&](int idx) {
 				Slot &s = table[idx];
 				Option<Item> r;
@@ -236,8 +229,7 @@ struct StringCode {
 	// simple function from the book
 	static unsigned long long hash(const StringCode &sc) {
 		unsigned long long result = 0;
-		for (char ch : sc.str)
-			result = (37 * result) + ch;
+		for (char ch : sc.str) result = (37 * result) + ch;
 		return result;
 	}
 };
@@ -249,19 +241,17 @@ class CodeTable : public HashTable<StringCode> {
 
 	public:
 	CodeTable() : HashTable(4096, &StringCode::hash) {
-		for (int c = 0; c < 256; c++)
-			insert({ (char) c });
+		for (int c = 0; c < 256; c++) insert({ (char) c });
 	};
 
-	Option<const StringCode&> find(const string &str) const {
-		return
-			HashTable<StringCode>::find({ str, -1 });
+	Option<const StringCode &> find(const string &str) const {
+		return HashTable<StringCode>::find({ str, -1 });
 	};
 
 	bool insert(const string &str) {
 		if (HashTable::insert({ str, codeCount })) {
 			codeCount++;
-			_maxLength = max((int)str.length(), _maxLength);
+			_maxLength = max((int) str.length(), _maxLength);
 			return true;
 		} else return false;
 	}
@@ -279,7 +269,6 @@ class Compressor {
 
 	public:
 	string compress(string s) {
-
 		// index of the start of the uncompressed section
 		unsigned int start = 0;
 		stringstream result;
@@ -291,8 +280,7 @@ class Compressor {
 			// we have compressed some part of the input.
 			start += longest.str.length();
 			// if theres a next character, add to map
-			if (start < s.length())
-				map.insert(longest.str + s[start]);
+			if (start < s.length()) map.insert(longest.str + s[start]);
 		}
 
 		return result.str();
@@ -300,13 +288,12 @@ class Compressor {
 
 	StringCode longestCodeInTable(string s) {
 		for (unsigned int n = map.maxLength(); n > 0; n--) {
-			if (n > s.length()) continue; // no substring of this size
+			if (n > s.length()) continue;	 // no substring of this size
 			auto item = map.find(s.substr(0, n));
 			if (item) return *item;
 		}
 		throw "shouldve found one-character code already!";
 	}
-
 };
 
 class Decompressor {
@@ -367,14 +354,14 @@ ostream &operator<<(ostream &os, const Decompressor &d) {
 int main() {
 	cout << "To compress a file, press 1. To decompress a file, press 2: ";
 
-	// because getline and >> dont work together 
+	// because getline and >> dont work together
 	string choice_str;
 	getline(cin, choice_str);
 	int choice = atoi(choice_str.c_str());
 
 	switch (choice) {
 		case 1: {	 // compressing
-	cout << "Enter the input string: ";
+			cout << "Enter the input string: ";
 			break;
 		}
 		case 2: {	 // decompressing
@@ -386,21 +373,21 @@ int main() {
 	getline(cin, s);
 	switch (choice) {
 		case 1: {	 // compressing
-		Compressor c;
-		string zip = c.compress(s);
-		cout << "Compressed output: " << zip;
+			Compressor c;
+			string zip = c.compress(s);
+			cout << "Compressed output: " << zip;
 		} break;
 		case 2: {	 // decompressing
-		Decompressor d;
-		stringstream ss(s);
-		while (d << ss);
+			Decompressor d;
+			stringstream ss(s);
+			while (d << ss);
 			cout << "Decompressed string: " << d;
 		} break;
 
-	default:
-		cout << "Bad input." << endl;
-		return 1;
-		break;
+		default:
+			cout << "Bad input." << endl;
+			return 1;
+			break;
 	}
 
 	return 0;
