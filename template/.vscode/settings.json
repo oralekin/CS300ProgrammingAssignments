@@ -83,5 +83,12 @@
     "typeinfo": "cpp",
     "valarray": "cpp",
     "*.ipp": "cpp"
-  }
+  },
+  "C_mantic.cpp.accessor.boolGetterIsPrefix": true,
+  "chat.commandCenter.enabled": false,
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
+  "C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
+  "C_Cpp.inlayHints.parameterNames.enabled": true,
+  "C_Cpp.inlayHints.referenceOperator.enabled": true
 }
