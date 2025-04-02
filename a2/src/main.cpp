@@ -310,15 +310,15 @@ class Compressor {
 };
 
 class Decompressor {
-
 	string dictionary[4096];
+	int dict_size = 0;
 	stringstream output;
+	int prev_input = -1;
 
 	public:
-
 	Decompressor() {
-		for (unsigned int c = 0; c < 256; c++)
-			dictionary[c] = { (char) c };
+		for (unsigned int c = 0; c < 256; c++) dictionary[c] = { (char) c };
+		dict_size = 256;
 	}
 
 	// desired usage:
@@ -328,9 +328,32 @@ class Decompressor {
 	cout << output;
 	*/
 	bool operator<<(istream &is) {
-		// TODO
+		int input;
+		if (!(is >> input)) return false;
 
-		return false;
+		// resolve:
+		if (input < dict_size) {	// in dict
+			output << dictionary[input];
+			// if theres space in the dictionary, and there was a previous compressed segment:
+			// create a new entry.
+			if (dict_size < 4096 && prev_input != -1) {
+				dictionary[dict_size] =
+					dictionary[prev_input] + dictionary[input].at(0);
+				dict_size++;
+			}
+		} else {	// not in dict
+			// text segment has the form text(q)text(q)fc(q) and text(x) = text(q)fc(q)
+			// so we should output, and enter to dict text(q)fc(q)
+			string textqfcq = dictionary[prev_input] + dictionary[prev_input].at(0);
+			output << textqfcq;
+			if (dict_size < 4096) {
+				dictionary[dict_size] = textqfcq;
+				dict_size++;
+			}
+		}
+
+		prev_input = input;
+		return true;
 	};
 	friend ostream &operator<<(ostream &os, const Decompressor &d);
 };
@@ -341,7 +364,6 @@ ostream &operator<<(ostream &os, const Decompressor &d) {
 	return os;
 }
 
-
 int main() {
 	cout << "To compress a file, press 1. To decompress a file, press 2: ";
 
@@ -350,25 +372,30 @@ int main() {
 	getline(cin, choice_str);
 	int choice = atoi(choice_str.c_str());
 
+	switch (choice) {
+		case 1: {	 // compressing
 	cout << "Enter the input string: ";
+			break;
+		}
+		case 2: {	 // decompressing
+			cout << "Enter the compressed string: ";
+			break;
+		}
+	}
 	string s;
 	getline(cin, s);
 	switch (choice) {
-	case 1:
-	{ // compressing
+		case 1: {	 // compressing
 		Compressor c;
 		string zip = c.compress(s);
 		cout << "Compressed output: " << zip;
-	}
-	break;
-	case 2:
-	{ // decompressing
+		} break;
+		case 2: {	 // decompressing
 		Decompressor d;
 		stringstream ss(s);
 		while (d << ss);
-		cout << d;
-	}
-	break;
+			cout << "Decompressed string: " << d;
+		} break;
 
 	default:
 		cout << "Bad input." << endl;
