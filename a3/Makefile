@@ -1,16 +1,16 @@
 CXX = g++
-CXXFLAGS = -Wall -fdiagnostics-color=always --std=c++17
+CXXFLAGS = -Wall -fdiagnostics-color=always --std=c++17 -pedantic
 SRC=$(wildcard src/**.cpp)
-HDR=$(wildcard src/**.h)
+HEADERS=$(wildcard src/**.h)
 
 .PHONY: run all
 
 all: build/app
 
-build/app: $(SRC) $(HDR)
+build/app: $(SRC) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(SRC)
 
-build/debug: $(SRC) $(HDR)
+build/debug: $(SRC) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ -g3 $(SRC)
 
 .SILENT: run
