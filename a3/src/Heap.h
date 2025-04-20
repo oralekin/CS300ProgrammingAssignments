@@ -1,3 +1,5 @@
+#pragma once
+
 class Heap {
 	public:
 	virtual void insert(int task_id, int priority) = 0;
