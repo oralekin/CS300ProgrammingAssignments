@@ -11,7 +11,7 @@ void DaryHeap::insert(int task_id, int priority) {
 	// clang-format off
 	int i;
 	for (
-    i == contents.size() - 1;
+    i = contents.size() - 1;
     i != 0 && contents[i] < contents[parent(i)];
     i = parent(i)
   )
@@ -23,7 +23,7 @@ void DaryHeap::insert(int task_id, int priority) {
 }
 
 int DaryHeap::extract_min() {
-if (contents.size() == 0) return -1;
+	if (contents.size() == 0) return -1;
 	// move min element to the end, for easy removal.
 	std::swap(contents.front(), contents.back());
 
