@@ -31,7 +31,13 @@ int DaryHeap::extract_min() {
 	return ret.task_id;
 }
 
-void DaryHeap::decrease_key(int task_id, int new_priority) {}
+void DaryHeap::decrease_key(int task_id, int new_priority) {
+	auto found = task_map.find(task_id);
+	if (found != task_map.end()) {
+		contents[found->second].priority = new_priority;
+		bubbleUp(found->second);
+	}
+}
 
 void DaryHeap::merge_with(DaryHeap &other) {}
 
