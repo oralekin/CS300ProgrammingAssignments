@@ -20,7 +20,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 struct Binomial {};
 struct Dary {
-  int d;
+  size_t d;
 };
 // HEAP_TYPE BINOMIAL
 // HEAP_TYPE DARY <d>

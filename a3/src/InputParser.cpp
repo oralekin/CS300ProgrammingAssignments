@@ -47,7 +47,7 @@ Command parseOne(istream &is) {
 		if (!(line >> type)) throw UnrecognizedCommand(line.str());
 		if (type == "BINOMIAL") return Binomial();
 		else if (type == "DARY") {
-			int d;
+			size_t d;
 			if (!(line >> d)) throw UnrecognizedCommand(line.str());
 			return Dary{ d };
 		}
