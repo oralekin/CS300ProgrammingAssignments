@@ -22,9 +22,15 @@ class DaryHeap : public Heap {
 	private:
 	const int d;
 	std::vector<Task> contents;
-	std::unordered_map<int, Task*> task_map;
+	// map<tasks_id, task_index>
+	std::unordered_map<int, int> task_map;
 
-	// to pretend we have 1-indexed underlying array
 	inline int parent(int index) const;
 	int findMinChild(int index) const;
+
+	void swap(int i1, int i2);
+
+	int bubbleUp(int start);
+	int sinkDown(int start);
+
 };
