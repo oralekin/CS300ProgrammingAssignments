@@ -23,6 +23,26 @@ void DaryHeap::insert(int task_id, int priority) {
 }
 
 int DaryHeap::extract_min() {
+if (contents.size() == 0) return -1;
+	// move min element to the end, for easy removal.
+	std::swap(contents.front(), contents.back());
+
+	// remove last element & shrink vector
+	Task ret = std::move(contents.back());
+	contents.pop_back();
+
+	// first element is now the old last element.
+	// swap first with it's smallest child until order property restored.
+	// clang-format off
+	int i;
+	for (
+    i = 0;
+    i != contents.size() - 1 && contents[i] > contents[findMinChild(i)];
+    i = findMinChild(i)
+  )
+		std::swap(contents[i], contents[findMinChild(i)]);
+	// clang-format on
+	return ret.task_id;
 }
 
 void DaryHeap::decrease_key(int task_id, int new_priority) {}
