@@ -36,14 +36,18 @@ void DaryHeap::merge_with(Heap &other) {}
 DaryHeap::~DaryHeap() {}
 
 int DaryHeap::parent(int index) const {
-	return ((index + 1) / d) + 1;
+	return (index - 1) / d;
 }
 
+/**
+ * returns out of bounds index if node doesn't have children.
+ */
 int DaryHeap::findMinChild(int index) const {
-	int ret = (index + 1) * d;
-	for (int i = 0; i < d; i++) {
-		int checking_index = (index + 1) * d + i;
-		// no more elements in heap
+	// initially choose first child
+	auto ret = (index * d) + 1;
+	for (int offset = 0; offset < d; offset++) {
+		auto checking_index = (index + 1) * d + offset;
+		// no more elements in heap (or in case no children exist, this will return an out of bounds index on the first loop)
 		if (checking_index >= contents.size()) return ret;
 		if (contents[checking_index] < contents[ret]) ret = checking_index;
 	}
