@@ -55,10 +55,11 @@ int DaryHeap::parent(int index) const {
  * returns out of bounds index if node doesn't have children.
  */
 int DaryHeap::findMinChild(int index) const {
+	const int firstChild_index = (index * d) + 1;
 	// initially choose first child
-	auto ret = (index * d) + 1;
+	auto ret = firstChild_index;
 	for (int offset = 0; offset < d; offset++) {
-		auto checking_index = (index + 1) * d + offset;
+		auto checking_index = firstChild_index + offset;
 		// no more elements in heap (or in case no children exist, this will return an out of bounds index on the first loop)
 		if (checking_index >= contents.size()) return ret;
 		if (contents[checking_index] < contents[ret]) ret = checking_index;
