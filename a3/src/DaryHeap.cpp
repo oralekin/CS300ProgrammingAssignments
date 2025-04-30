@@ -6,42 +6,28 @@ DaryHeap::DaryHeap(int d) : d(d) {}
 void DaryHeap::insert(int task_id, int priority) {
 	// insert
 	contents.emplace_back(task_id, priority);
+	task_map[task_id] = contents.size() - 1;
 
-	// swap inserted with parent until parent < inserted .
-	// clang-format off
-	int i;
-	for (
-    i = contents.size() - 1;
-    i != 0 && contents[i] < contents[parent(i)];
-    i = parent(i)
-  )
-		std::swap(contents[i], contents[parent(i)]);
-	// clang-format on
+	int finalSpot = bubbleUp(contents.size() - 1);
 
-	assert(contents[i].task_id == task_id);
-	assert(contents[i].priority == priority);
+	assert(contents[finalSpot].task_id == task_id);
+	assert(contents[finalSpot].priority == priority);
 }
 
 int DaryHeap::extract_min() {
 	if (contents.size() == 0) return -1;
+
+	Task tttt = contents.front();
 	// move min element to the end, for easy removal.
-	std::swap(contents.front(), contents.back());
+	swap(0, contents.size() - 1);
 
 	// remove last element & shrink vector
 	Task ret = std::move(contents.back());
 	contents.pop_back();
+	assert(task_map[ret.task_id] == contents.size());
 
-	// first element is now the old last element.
-	// swap first with it's smallest child until order property restored.
-	// clang-format off
-	int i;
-	for (
-    i = 0;
-    i != contents.size() - 1 && contents[i] > contents[findMinChild(i)];
-    i = findMinChild(i)
-  )
-		std::swap(contents[i], contents[findMinChild(i)]);
-	// clang-format on
+	sinkDown(0);
+
 	return ret.task_id;
 }
 
@@ -72,4 +58,50 @@ int DaryHeap::findMinChild(int index) const {
 		if (contents[checking_index] < contents[ret]) ret = checking_index;
 	}
 	return ret;
+}
+
+void DaryHeap::swap(int i1, int i2) {
+	// swap in inner array
+	std::swap(contents[i1], contents[i2]);
+
+	// change index of tasks in task_map
+	task_map[contents[i1].task_id] = i1;
+	task_map[contents[i2].task_id] = i2;
+}
+
+int DaryHeap::bubbleUp(int start) {
+	if (contents.size() == 0) return 0;
+	// swap inserted with parent until parent < inserted .
+	// clang-format off
+	int i;
+	for (
+    i = start;
+    i != 0 && contents[i] < contents[parent(i)];
+    i = parent(i)
+  )
+		swap(i, parent(i));
+	// clang-format on
+	return i;
+}
+
+int DaryHeap::sinkDown(int start) {
+	if (contents.size() == 0) return 0;
+	// first element is now the old last element.
+	// swap first with it's smallest child until order property restored.
+	// continue until we're out of elements
+	for (int i = start; i < contents.size();) {
+		const int minChild_index = findMinChild(i);
+
+		// no child exists, done
+		if (minChild_index >= contents.size()) return i;
+		// heap order satisfied, done
+		if (contents[i] < contents[minChild_index]) return i;
+
+		// swap with child
+		swap(i, minChild_index);
+
+		// proceed to child placement;
+		i = minChild_index;
+	}
+	return -1;
 }
