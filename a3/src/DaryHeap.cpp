@@ -4,6 +4,22 @@
 DaryHeap::DaryHeap(int d) : d(d) {}
 
 void DaryHeap::insert(int task_id, int priority) {
+	// insert
+	contents.emplace_back(task_id, priority);
+
+	// swap inserted with parent until parent < inserted .
+	// clang-format off
+	int i;
+	for (
+    i == contents.size() - 1;
+    i != 0 && contents[i] < contents[parent(i)];
+    i = parent(i)
+  )
+		std::swap(contents[i], contents[parent(i)]);
+	// clang-format on
+
+	assert(contents[i].task_id == task_id);
+	assert(contents[i].priority == priority);
 }
 
 int DaryHeap::extract_min() {
